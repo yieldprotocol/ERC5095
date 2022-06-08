@@ -1,0 +1,29 @@
+{
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": [
+                    "comment",
+                ],
+                "settings": {
+                    "fontStyle": "",
+                }
+            }
+        ]
+    },
+    "solidity.packageDefaultDependenciesContractsDirectory": "src",
+    "solidity.packageDefaultDependenciesDirectory": "lib",
+    "solidity.compileUsingRemoteVersion": "v0.8.13",
+    "search.exclude": {
+        "lib": true
+    },
+    "files.associations": {
+        ".gas-snapshot": "julia"
+    },
+    "workbench.colorCustomizations": {
+        "titleBar.activeForeground": "#dbeed7",
+        "titleBar.inactiveForeground": "#dbeed7",
+        "titleBar.activeBackground": "#153ab1",
+        "titleBar.inactiveBackground": "#153ab1"
+    }
+}
