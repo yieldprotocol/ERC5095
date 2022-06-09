@@ -13,7 +13,7 @@
     },
     "solidity.packageDefaultDependenciesContractsDirectory": "src",
     "solidity.packageDefaultDependenciesDirectory": "lib",
-    "solidity.compileUsingRemoteVersion": "v0.8.13",
+    "solidity.compileUsingRemoteVersion": "v0.8.14",
     "search.exclude": {
         "lib": true
     },
