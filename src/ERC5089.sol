@@ -45,6 +45,7 @@ contract ERC5089 is ERC20 {
      *****************************************************************************************************************/
 
     /// @notice Burns an exact amount of principal tokens in exchange for an amount of underlying.
+    /// @dev This reverts if before maturity.
     /// @param principalAmount The exact amount of principal tokens to be burned.
     /// @param from The owner of the principal tokens to be redeemed.  If not msg.sender then must have prior approval.
     /// @param to The address to send the underlying tokens.
@@ -54,15 +55,6 @@ contract ERC5089 is ERC20 {
         address from,
         address to
     ) public virtual afterMaturity returns (uint256 underlyingAmount) {
-        return (_redeem(principalAmount, from, to));
-    }
-
-    /// @dev This doesn't revert if before maturity.
-    function _redeem(
-        uint256 principalAmount,
-        address from,
-        address to
-    ) public virtual returns (uint256 underlyingAmount) {
         _decreaseAllowance(from, principalAmount);
 
         // Check for rounding error since we round down in previewRedeem.
@@ -75,12 +67,8 @@ contract ERC5089 is ERC20 {
         _transferOut(to, underlyingAmount);
     }
 
-    function _transferOut(address to, uint256 amount) internal virtual {
-        underlying.safeTransfer(to, amount);
-    }
-
     /// @notice Burns a calculated amount of principal tokens in exchange for an exact amount of underlying.
-    /// @dev This doesn't revert if before maturity.
+    /// @dev This reverts if before maturity.
     /// @param underlyingAmount The exact amount of underlying tokens to be received.
     /// @param from The owner of the principal tokens to be redeemed.  If not msg.sender then must have prior approval.
     /// @param to The address to send the underlying tokens.
@@ -89,16 +77,7 @@ contract ERC5089 is ERC20 {
         uint256 underlyingAmount,
         address from,
         address to
-    ) public virtual returns (uint256 principalAmount) {
-        return _withdraw(underlyingAmount, from, to);
-    }
-
-    /// @dev This doesn't revert if before maturity.
-    function _withdraw(
-        uint256 underlyingAmount,
-        address from,
-        address to
-    ) public virtual returns (uint256 principalAmount) {
+    ) public virtual afterMaturity returns (uint256 principalAmount) {
         principalAmount = _previewWithdraw(underlyingAmount); // No need to check for rounding error, previewWithdraw rounds up.
 
         _decreaseAllowance(from, principalAmount);
@@ -108,6 +87,14 @@ contract ERC5089 is ERC20 {
         emit Redeem(from, to, principalAmount);
 
         _transferOut(to, underlyingAmount);
+    }
+
+    /// @notice An internal, overrideable transfer function.
+    /// @dev Reverts on failed transfer.
+    /// @param to The recipient of the transfer.
+    /// @param amount The amount of the transfer.
+    function _transferOut(address to, uint256 amount) internal virtual {
+        underlying.safeTransfer(to, amount);
     }
 
     /* ACCOUNTING FUNCTIONS
@@ -121,7 +108,6 @@ contract ERC5089 is ERC20 {
         return _convertToUnderlying(principalAmount);
     }
 
-    /// @dev This doesn't revert if before maturity.
     function _convertToUnderlying(uint256 principalAmount) internal view virtual returns (uint256 underlyingAmount) {
         return principalAmount;
     }
@@ -134,61 +120,48 @@ contract ERC5089 is ERC20 {
         return _convertToPrincipal(underlyingAmount);
     }
 
-    /// @dev This doesn't revert if before maturity.
     function _convertToPrincipal(uint256 underlyingAmount) internal view virtual returns (uint256 principalAmount) {
         return underlyingAmount;
     }
 
     /// @notice Allows user to simulate redemption of a given amount of principal tokens, inclusive of fees and other
     /// current block conditions.
-    /// @dev Reverts prior to maturity.
+    /// @dev This reverts if before maturity.
     /// @param principalAmount The amount of principal that would be redeemed.
     /// @return underlyingAmount The amount of underlying that would be received.
-    function previewRedeem(uint256 principalAmount) external view returns (uint256 underlyingAmount) {
+    function previewRedeem(uint256 principalAmount) external view afterMaturity returns (uint256 underlyingAmount) {
         return _previewRedeem(principalAmount);
     }
 
-    /// @dev This doesn't revert if before maturity.
     function _previewRedeem(uint256 principalAmount) internal view virtual returns (uint256 underlyingAmount) {
-        return block.timestamp >= maturity ? _convertToUnderlying(principalAmount) : 0; // should include fees/slippage
+        return _convertToUnderlying(principalAmount); // should include fees/slippage
     }
 
     /// @notice Calculates the maximum amount of principal tokens that an owner could redeem.
-    /// @dev This doesn't revert if before maturity.
+    /// @dev This returns 0 if before maturity.
     /// @param owner The address for which the redemption is being calculated.
     /// @return maxPrincipalAmount The maximium amount of principal tokens that can be redeemed by the given owner.
-    function maxRedeem(address owner) external view returns (uint256 maxPrincipalAmount) {
-        return _maxRedeem(owner);
-    }
-
-    /// @dev This doesn't revert if before maturity.
-    function _maxRedeem(address owner) internal view virtual returns (uint256 maxPrincipalAmount) {
+    function maxRedeem(address owner) public view returns (uint256 maxPrincipalAmount) {
         return block.timestamp >= maturity ? _balanceOf[owner] : 0;
     }
 
     /// @notice Allows user to simulate withdraw of a given amount of underlying tokens.
-    /// @dev This doesn't revert if before maturity.
+    /// @dev This reverts if before maturity.
     /// @param underlyingAmount The amount of underlying tokens that would be withdrawn.
     /// @return principalAmount The amount of principal tokens that would be redeemed.
-    function previewWithdraw(uint256 underlyingAmount) external view returns (uint256 principalAmount) {
+    function previewWithdraw(uint256 underlyingAmount) external view afterMaturity returns (uint256 principalAmount) {
         return _previewWithdraw(underlyingAmount);
     }
 
-    /// @dev This doesn't revert if before maturity.
     function _previewWithdraw(uint256 underlyingAmount) internal view virtual returns (uint256 principalAmount) {
-        return block.timestamp >= maturity ? _convertToPrincipal(underlyingAmount) : 0; // should include fees/slippage
+        return _convertToPrincipal(underlyingAmount); // should include fees/slippage
     }
 
     /// @notice Calculates the maximum amount of underlying tokens that can be withdrawn by a given owner.
-    /// @dev This doesn't revert if before maturity.
+    /// @dev This returns 0 if before maturity.
     /// @param owner The address for which the withdraw is being calculated.
     /// @return maxUnderlyingAmount The maximum amount of underlying tokens that can be withdrawn by a given owner.
-    function maxWithdraw(address owner) external view returns (uint256 maxUnderlyingAmount) {
-        return _maxWithdraw(owner);
-    }
-
-    /// @dev This doesn't revert if before maturity.
-    function _maxWithdraw(address owner) internal view virtual returns (uint256 maxUnderlyingAmount) {
-        return _previewWithdraw(_maxRedeem(owner));
+    function maxWithdraw(address owner) public view returns (uint256 maxUnderlyingAmount) {
+        return _previewWithdraw(maxRedeem(owner));
     }
 }
