@@ -101,7 +101,7 @@ contract ERC5089 is ERC20 {
      *****************************************************************************************************************/
 
     /// @notice Calculates the amount of underlying tokens that would be exchanged for a given amount of principal tokens.
-    /// @dev This doesn't revert if before maturity.
+    /// @dev Before maturity, it converts to underlying as if at maturity.
     /// @param principalAmount The amount principal on which to calculate conversion.
     /// @return underlyingAmount The total amount of underlying that would be received for the given principal amount..
     function convertToUnderlying(uint256 principalAmount) external view returns (uint256 underlyingAmount) {
