@@ -113,7 +113,7 @@ contract ERC5089 is ERC20 {
     }
 
     /// @notice Converts a given amount of underlying tokens to principal exclusive of fees.
-    /// @dev This doesn't revert if before maturity.
+    /// @dev Before maturity, it converts to principal as if at maturity.
     /// @param underlyingAmount The total amount of underlying on which to calculate the conversion.
     /// @return principalAmount The amount principal tokens required to provide the given amount of underlying.
     function convertToPrincipal(uint256 underlyingAmount) external view returns (uint256 principalAmount) {
