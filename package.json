@@ -1,5 +1,5 @@
 {
-  "name": "ERC5089",
+  "name": "ERC5095",
   "license": "MIT",
   "version": "0.0.1",
   "description": "An implementation of EIP-5089 Principal Token Standard for discussion",
@@ -8,7 +8,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yieldprotocol/ERC5089"
+    "url": "git+https://github.com/yieldprotocol/ERC5095"
   },
   "devDependencies": {
     "prettier": "^2.3.1",

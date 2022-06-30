@@ -4,7 +4,7 @@ pragma solidity 0.8.14;
 import {ERC20} from "yield-utils-v2/contracts/token/ERC20.sol";
 import {MinimalTransferHelper} from "yield-utils-v2/contracts/token/MinimalTransferHelper.sol";
 
-contract ERC5089 is ERC20 {
+contract ERC5095 is ERC20 {
     using MinimalTransferHelper for ERC20;
 
     /* EVENTS
